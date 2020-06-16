@@ -30,7 +30,6 @@ class Controller
         menu.choice "3) Show playlists", -> {@user.show_playlists}
         menu.choice "4) Add song to playlist", -> {@user.add_song}
         menu.choice "Exit", -> {puts "Goodbye"}
-
       end
     end
 end

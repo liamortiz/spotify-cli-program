@@ -7,13 +7,13 @@ class User < ActiveRecord::Base
 
     def listen
       # List all user songs and plays them through browser
+      # TODO: Check if user has any songs at all
       choices = {}
       self.songs.uniq.map do |song|
         choices["#{song.name} - #{song.artist_name}"] = song
       end
       song = PROMPT.select("Console: Choose a song", choices)
       Spotify.launch(song.external_url)
-
     end
 
     def show_playlists
