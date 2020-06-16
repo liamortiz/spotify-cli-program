@@ -1,16 +1,30 @@
-class Controller 
-    attr_accessor :user
-    attr_reader :prompt
+class Controller
+    attr_accessor :user, :prompt
 
     def initialize
-        @prompt = TTY::Prompt.new 
+        @prompt = TTY::Prompt.new
     end
 
-    def greetings 
-        puts "Welcome to Spotify App"
-        prompt.select("Do you have an account") do |menu|
+    def run
+      if !user
+        main_menu
+      else
+        logged_in
+      end
+    end
+
+    def main_menu
+        puts "Console: Welcome to the Spotify CLI App"
+        @user = prompt.select("Console: Login/Register") do |menu|
             menu.choice "Register", -> {User.register_user}
             menu.choice "Login", -> {User.login_user}
         end
+    end
+
+    def logged_in
+      prompt.select("Console: What do you want to do?") do |menu|
+        menu.choice "1) Listen to a song", -> {@user.listen}
+        menu.choice "2) Search for a song", -> {@user.find_song}
+      end
     end
 end

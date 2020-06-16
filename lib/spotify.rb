@@ -7,7 +7,7 @@ class Spotify
       RSpotify.authenticate(client_id, client_secret)
     rescue RestClient::BadRequest
       puts "ERROR: Failed to authenticate!"
-      # Exit for now but we wanna handle this error correctly
+      # Exit for now but we want to handle this error correctly
       exit
     else
       puts "DEBUG: Successfully authenticated."
