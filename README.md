@@ -1,4 +1,4 @@
-# Spotify CLI Program
+# Spotify CLI Program CRUD Application
 A small Spotify CLI program made with Ruby and SQLite
 
 # Tools
