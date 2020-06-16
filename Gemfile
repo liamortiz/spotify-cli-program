@@ -9,3 +9,4 @@ gem "require_all"
 gem 'launchy' # Handles openning browser
 gem 'colorize' # Color console
 gem 'rspotify'
+gem 'tty-prompt'
