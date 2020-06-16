@@ -26,8 +26,10 @@ class Controller
       puts "Welcome, #{self.user.username}"
       prompt.select("Console: What do you want to do?") do |menu|
         menu.choice "1) Listen to a song", -> {@user.listen}
-        menu.choice "2) Search for a song", -> {@user.find_song}
-        menu.choice "3) Exit", -> {puts "Goodbye"}
+        menu.choice "2) Create playlist", -> {@user.create_playlist}
+        menu.choice "3) Show playlists", -> {@user.show_playlists}
+        menu.choice "4) Add song to playlist", -> {@user.add_song}
+        menu.choice "Exit", -> {puts "Goodbye"}
 
       end
     end
