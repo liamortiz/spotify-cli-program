@@ -1,6 +1,8 @@
 require_relative '../config/environment'
 
-# Start the spotify static class
+# Check what OS the user is on, aimed to be Windows or MacOS
+MACOS = !!(/darwin/ =~ RUBY_PLATFORM)
+puts "DEBUG: The user is on a #{(MACOS ? "Mac." : "Windows computer.")}"
+
 Spotify.authenticate
-Spotify.sample_track({:name => "Wasted Times"})
 binding.pry
