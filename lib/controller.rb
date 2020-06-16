@@ -19,12 +19,16 @@ class Controller
             menu.choice "Register", -> {User.register_user}
             menu.choice "Login", -> {User.login_user}
         end
+        true
     end
 
     def logged_in
+      puts "Welcome, #{self.user.username}"
       prompt.select("Console: What do you want to do?") do |menu|
         menu.choice "1) Listen to a song", -> {@user.listen}
         menu.choice "2) Search for a song", -> {@user.find_song}
+        menu.choice "3) Exit", -> {puts "Goodbye"}
+
       end
     end
 end

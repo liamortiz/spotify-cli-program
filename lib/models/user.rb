@@ -5,6 +5,8 @@ class User < ActiveRecord::Base
 
     PROMPT = TTY::Prompt.new
 
+    attr_accessor :username, :password
+
     def listen
       choices = self.songs.map do |song|
         "#{song.name} - #{song.artist_name}"
@@ -17,26 +19,37 @@ class User < ActiveRecord::Base
     end
 
     def self.register_user
-        username = PROMPT.ask("Username:")
-
-        if User.find_by(username: username)
+        get_credentials
+        if User.find_by(username: @username)
             puts "This username already exists, Please choose a different username"
          else
-            password = PROMPT.mask("Password:")
-            password = Password.create(password) # Hash the password
-            User.create({:username => username, :password => password})
+            password = Password.create(@password) # Hash the password
+            User.create({:username => @username, :password => @password})
          end
     end
 
     def self.login_user
-        username = PROMPT.ask("Username:")
-        user = User.find_by(username: username)
+        get_credentials
+
+        user = User.find_by(username: @username)
         if user
-            password = PROMPT.mask("Password:")
             password_hash = Password.new(user.password)
-            if password_hash == password
+            if password_hash == @password
                 return user
             end
+
         end
     end
+
+    private
+    def self.get_credentials
+        @username = PROMPT.ask('Username:') do |q|
+            q.validate{|input| input.size.between?(4, 15) && input =~ /[a-zA-Z0-9]/}
+        end
+        @password = PROMPT.mask('Password:') do |q|
+            q.validate{|input| input.size.between?(4, 15) && input =~ /[a-zA-Z0-9]/}
+        end
+    end
+
+
 end
