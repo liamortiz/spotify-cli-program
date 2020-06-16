@@ -10,3 +10,4 @@ gem 'launchy' # Handles openning browser
 gem 'colorize' # Color console
 gem 'rspotify'
 gem 'tty-prompt'
+gem 'bcrypt'
