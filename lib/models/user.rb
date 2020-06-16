@@ -33,7 +33,9 @@ class User < ActiveRecord::Base
                 puts "Welcome!"
             end
         end
-        binding.pry
+    end
 
+    def self.create_playlist 
+        
     end
 end

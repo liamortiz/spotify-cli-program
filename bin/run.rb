@@ -8,6 +8,11 @@ Spotify.authenticate
 
 
 controller_instance = Controller.new()
-controller_instance.greetings()
+userChoice = controller_instance.greetings()
+
+until !userChoice.nil?
+    sleep 3
+    userChoice = controller_instance.greetings()
+end
 
 binding.pry
