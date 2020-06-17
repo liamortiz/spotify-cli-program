@@ -10,17 +10,23 @@ class User < ActiveRecord::Base
       if self.songs.size <= 0
         PROMPT.warn("Console: You don't have any songs.")
         sleep 4
-        return true
+        throw :menu
       end
       choices = {}
       self.songs.uniq.map.with_index(1) do |song, index|
         choices["#{index}) #{song.name} - #{song.artist_name}"] = song
       end
-      song = PROMPT.select("Console: Choose a song") do |menu|
-        menu.per_page 10
-        menu.choices choices
-      end
+      song = prompt_select("Choose a song.", choices)
       Spotify.launch(song.external_url)
+
+    end
+
+    def prompt_select(title, choices)
+      PROMPT.select("Console: #{title}") do |menu|
+        menu.choices choices
+        menu.choice "Back", -> {throw :menu}
+        menu.per_page 10
+      end
     end
 
     def show_playlists
@@ -29,16 +35,17 @@ class User < ActiveRecord::Base
         choices["#{index + 1}) #{playlist.name}"] = playlist
       end
 
-      playlist = PROMPT.select("Console: Choose a playlist to view songs.", choices)
-
+      playlist = prompt_select("Choose a playlist to view songs.", choices)
       if playlist.songs.empty?
         PROMPT.warn("Console: Sorry you don't have any songs here.")
         sleep 3
       else
-        choices = playlist.songs.map.with_index(1) do |song, index|
-          "#{index}) #{song.name} - #{song.artist_name}"
+        choices = {}
+        playlist.songs.map.with_index(1) do |song, index|
+          choices["#{index}) #{song.name} - #{song.artist_name}"] = song
         end
-        PROMPT.select("Console: Select a song to exit.", choices, per_page: 10)
+        song = prompt_select("Select a song to play.", choices)
+        Spotify.launch(song.external_url) 
       end
     end
 
@@ -66,7 +73,7 @@ class User < ActiveRecord::Base
       self.playlists.each_with_index do |playlist, index|
         choices["#{index + 1}) #{playlist.name}"] = playlist
       end
-      playlist = PROMPT.select("Select the playlist", choices)
+      playlist = prompt_select("Select the playlist.", choices)
 
       # Create record joiner table
       Record.find_or_create_by({:song_id => song.id, :playlist_id => playlist.id})
@@ -75,24 +82,26 @@ class User < ActiveRecord::Base
     def load_song_from_api
       song_name = PROMPT.ask("What is the song name?")
       songs = Spotify.find_track_by_name(song_name) # Call Spotify static class handles API calls
+
       choices = {}
       songs.map.with_index(1) do |song, index|
         choices["#{index}) #{song.name} - #{song.artists.first.name}"] = song
       end
       # Ask the user to select from the list of songs
-      song = PROMPT.select("Select the song", choices)
+      song = prompt_select("Select the song.", choices)
+
       # Return a new song instance
       Song.find_or_create_by({:name => song.name, :artist_name => song.artists.first.name, :external_url => song.external_urls['spotify']})
     end
 
-    
+
     def load_song_from_playlists
       choices = {}
       self.songs.uniq.map.with_index(1) do |song, index|
         choices["#{index}) #{song.name} - #{song.artist_name}"] = song
       end
       # Return the selected song
-      PROMPT.select("Select the song", choices)
+      prompt_select("Select the song.", choices)
     end
 
 

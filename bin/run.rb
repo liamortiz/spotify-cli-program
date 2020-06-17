@@ -9,7 +9,8 @@ Spotify.authenticate
 controller_instance = Controller.new()
 
 Controller.clear_screen
-while controller_instance.run
+while true
+  controller_instance.run
   sleep 1
   Controller.clear_screen
 end

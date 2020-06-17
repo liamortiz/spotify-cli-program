@@ -9,7 +9,9 @@ class Controller
       if !user
         main_menu
       else
-        logged_in
+        catch :menu do
+          logged_in
+        end
       end
     end
 
@@ -19,19 +21,18 @@ class Controller
             menu.choice "Register", -> {User.register_user}
             menu.choice "Login", -> {User.login_user}
         end
-        true
     end
 
     def logged_in
       self.user.reload
       puts "Console: Logged in as " + "#{self.user.username}".colorize({:background => :red})
-
+      
       prompt.select("Console: What do you want to do?") do |menu|
         menu.choice "1) Listen to a song", -> {@user.listen}
         menu.choice "2) Create playlist", -> {@user.create_playlist}
         menu.choice "3) Show playlists", -> {@user.show_playlists}
         menu.choice "4) Add song to playlist", -> {@user.add_song}
-        menu.choice "5) Exit", -> {puts "Console: Goodbye!"}
+        menu.choice "5) Exit", -> {exit}
       end
     end
 
