@@ -2,7 +2,7 @@ class Controller
     attr_accessor :user, :prompt
 
     def initialize
-        @prompt = TTY::Prompt.new
+        @prompt = TTY::Prompt.new(track_history: false)
     end
 
     def run
@@ -32,5 +32,9 @@ class Controller
         menu.choice "4) Add song to playlist", -> {@user.add_song}
         menu.choice "5) Exit", -> {puts "Console: Goodbye!"}
       end
+    end
+
+    def self.clear_screen
+      system(MACOS ? "clear" : "cls")
     end
 end

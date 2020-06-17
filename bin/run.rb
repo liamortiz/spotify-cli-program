@@ -8,10 +8,10 @@ Spotify.authenticate
 # Register/Login
 controller_instance = Controller.new()
 
-system(MACOS ? "clear" : "cls")
+Controller.clear_screen
 while controller_instance.run
   sleep 1
-  system(MACOS ? "clear" : "cls")
+  Controller.clear_screen
 end
 
 
