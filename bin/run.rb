@@ -2,6 +2,7 @@ require_relative '../config/environment'
 
 # Check what OS the user is on, aimed to be Windows or MacOS
 MACOS = !!(/darwin/ =~ RUBY_PLATFORM)
+PROMPT = TTY::Prompt.new(track_history: false)
 
 Spotify.authenticate
 
@@ -11,7 +12,6 @@ controller_instance = Controller.new()
 Controller.clear_screen
 while true
   controller_instance.run
-  sleep 1
   Controller.clear_screen
 end
 
