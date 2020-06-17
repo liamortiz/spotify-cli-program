@@ -18,3 +18,6 @@ A small Spotify CLI program made with Ruby and SQLite
   <li>Run <i>Bundle Install</i></li>
   <li>Run <i>ruby bin/run.rb</i></li>
 </ol>
+
+## Preview
+<img src="https://i.ibb.co/g3QV5DT/Capture.png" alt="Capture" border="0" />
