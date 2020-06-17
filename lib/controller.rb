@@ -23,6 +23,7 @@ class Controller
     end
 
     def logged_in
+      self.user.reload
       puts "Console: Logged in as " + "#{self.user.username}".colorize({:background => :red})
 
       prompt.select("Console: What do you want to do?") do |menu|

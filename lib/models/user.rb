@@ -85,6 +85,7 @@ class User < ActiveRecord::Base
       Song.find_or_create_by({:name => song.name, :artist_name => song.artists.first.name, :external_url => song.external_urls['spotify']})
     end
 
+    
     def load_song_from_playlists
       choices = {}
       self.songs.uniq.map.with_index(1) do |song, index|
@@ -93,6 +94,7 @@ class User < ActiveRecord::Base
       # Return the selected song
       PROMPT.select("Select the song", choices)
     end
+
 
     def self.register_user
       credentials = get_credentials
