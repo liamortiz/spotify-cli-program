@@ -10,12 +10,12 @@ class Spotify
       # Exit for now but we want to handle this error correctly
       exit
     else
-      puts "DEBUG: Successfully authenticated."
+      #puts "DEBUG: Successfully authenticated."
     end
   end
 
   def self.find_track_by_name(name)
-    RSpotify::Track.search(name, limit: 5, market: 'US')
+    RSpotify::Track.search(name, limit: 8, market: 'US')
     # Returns an array of tracks
   end
 
@@ -27,7 +27,7 @@ class Spotify
   end
 
   def self.find_artist(name)
-    RSpotify::Artist.search(name, limit: 1, market: 'US')[0]
+    RSpotify::Artist.search(name, limit: 8, market: 'US')
     # Returns nil or single instance of artist
   end
 

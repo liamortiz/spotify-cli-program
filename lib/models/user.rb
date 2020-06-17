@@ -9,18 +9,30 @@ class User < ActiveRecord::Base
       # List all user songs and plays them through browser
       # TODO: Check if user has any songs at all
       choices = {}
-      self.songs.uniq.map do |song|
-        choices["#{song.name} - #{song.artist_name}"] = song
+      self.songs.uniq.map.with_index(1) do |song, index|
+        choices["#{index}) #{song.name} - #{song.artist_name}"] = song
       end
-      song = PROMPT.select("Console: Choose a song", choices)
+      song = PROMPT.select("Console: Choose a song", choices, per_page: 10)
       Spotify.launch(song.external_url)
     end
 
     def show_playlists
+      choices = {}
       self.playlists.each_with_index do |playlist, index|
-        puts "#{index + 1}) #{playlist.name}"
+        choices["#{index + 1}) #{playlist.name}"] = playlist
       end
-      sleep 5
+
+      playlist = PROMPT.select("Console: Choose a playlist to view songs.", choices)
+
+      if playlist.songs.empty?
+        puts "Console: Sorry you don't have any songs here."
+        sleep 3
+      else
+        choices = playlist.songs.map.with_index(1) do |song, index|
+          "#{index}) #{song.name} - #{song.artist_name}"
+        end
+        PROMPT.select("Console: Select a song to exit.", choices, per_page: 10)
+      end
     end
 
     def create_playlist
@@ -40,8 +52,8 @@ class User < ActiveRecord::Base
       songs = Spotify.find_track_by_name(song_name)
       choices = {}
 
-      songs.each_with_index.map do |song, index|
-        choices["#{index + 1}) #{song.name} - #{song.artists.first.name}"] = song
+      songs.map.with_index(1) do |song, index|
+        choices["#{index}) #{song.name} - #{song.artists.first.name}"] = song
       end
 
       song = PROMPT.select("Select the song", choices)
