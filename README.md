@@ -1,6 +1,8 @@
 # Spotify CLI Program CRUD Application
 A small Spotify CLI program made with Ruby and SQLite
 
+#### For a better experience sign into your Spotify Web App account.
+
 # Tools
 <ul>
   <li>Ruby</li>
