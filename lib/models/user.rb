@@ -7,11 +7,6 @@ class User < ActiveRecord::Base
 
     def listen
       # List all user songs and plays them through browser
-      if self.songs.size <= 0
-        PROMPT.warn("Console: You don't have any songs.")
-        sleep 4
-        throw :menu
-      end
       choices = {}
       self.songs.uniq.map.with_index(1) do |song, index|
         choices["#{index}) #{song.name} - #{song.artist_name}"] = song
@@ -36,32 +31,52 @@ class User < ActiveRecord::Base
       end
 
       playlist = prompt_select("Choose a playlist to view songs.", choices)
-      if playlist.songs.empty?
-        PROMPT.warn("Console: Sorry you don't have any songs here.")
-        sleep 3
+
+      choices = {}
+      playlist.songs.map.with_index(1) do |song, index|
+        choices["#{index}) #{song.name} - #{song.artist_name}"] = song
+      end
+      song = prompt_select("Select a song for more options.", choices)
+      choice = prompt_select("What do you want to do?", ["1) Play", "2) Remove"])
+      if choice == "1) Play"
+        Spotify.launch(song.external_url)
       else
-        choices = {}
-        playlist.songs.map.with_index(1) do |song, index|
-          choices["#{index}) #{song.name} - #{song.artist_name}"] = song
-        end
-        song = prompt_select("Select a song to play.", choices)
-        Spotify.launch(song.external_url) 
+        record = Record.find_by({:song_id => song.id, :playlist_id => playlist.id})
+        record.destroy
+        PROMPT.ok("Console: Song removed from playlist.")
+        sleep 2
       end
     end
 
     def create_playlist
-      name = PROMPT.ask("What is the playlist name?")
+      name = PROMPT.ask("Console: What is the playlist name?")
       # Check if a playlist exists with that name
       if self.playlists.find_by({:name => name})
         PROMPT.error("Console: You already have a playlist with that name, try again.")
       else
+        PROMPT.ok("Console: Playlist #{name} created!")
+        sleep 2
         Playlist.create({:name => name, :user_id => self.id})
       end
     end
 
-    def add_song
-      choice = PROMPT.select("Select a song from your playlists or Spotify", ["1) Playlists", "2) Spotify"])
+    def remove_playlist
+      choices = {}
+      self.playlists.map.with_index(1) do |playlist, index|
+        choices["#{index}) #{playlist.name} - #{playlist.songs.size} songs."] = playlist
+      end
+      playlist = prompt_select("Choose the playlist.", choices)
+      PROMPT.ok("Console: The playlist #{playlist.name} was removed!")
+      playlist.destroy
+      sleep 2
+    end
 
+    def remove_song
+
+    end
+
+    def add_song
+      choice = prompt_select("Select a song from your playlists or Spotify", ["1) Playlists", "2) Spotify"])
       if choice == "2) Spotify"
         song = load_song_from_api
       else
@@ -69,6 +84,12 @@ class User < ActiveRecord::Base
       end
 
       # Ask the user to select a playlist
+      if self.playlists.size == 0
+        PROMPT.warn("Console: No playlists, please create one.")
+        create_playlist
+        self.reload
+      end
+
       choices = {}
       self.playlists.each_with_index do |playlist, index|
         choices["#{index + 1}) #{playlist.name}"] = playlist
@@ -80,7 +101,7 @@ class User < ActiveRecord::Base
     end
 
     def load_song_from_api
-      song_name = PROMPT.ask("What is the song name?")
+      song_name = PROMPT.ask("What is the song name or artist name?")
       songs = Spotify.find_track_by_name(song_name) # Call Spotify static class handles API calls
 
       choices = {}

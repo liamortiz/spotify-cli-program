@@ -26,13 +26,14 @@ class Controller
     def logged_in
       self.user.reload
       puts "Console: Logged in as " + "#{self.user.username}".colorize({:background => :red})
-      
+
       prompt.select("Console: What do you want to do?") do |menu|
-        menu.choice "1) Listen to a song", -> {@user.listen}
-        menu.choice "2) Create playlist", -> {@user.create_playlist}
-        menu.choice "3) Show playlists", -> {@user.show_playlists}
-        menu.choice "4) Add song to playlist", -> {@user.add_song}
-        menu.choice "5) Exit", -> {exit}
+        menu.choice "1) Listen To Song", -> {@user.listen}
+        menu.choice "2) Create Playlist", -> {@user.create_playlist}
+        menu.choice "3) Remove Playlist", -> {@user.remove_playlist}
+        menu.choice "4) Browse Playlists", -> {@user.show_playlists}
+        menu.choice "5) Add Song to Playlist", -> {@user.add_song}
+        menu.choice "Exit", -> {exit}
       end
     end
 

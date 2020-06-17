@@ -15,7 +15,7 @@ class Spotify
   end
 
   def self.find_track_by_name(name)
-    RSpotify::Track.search(name, limit: 8, market: 'US')
+    RSpotify::Track.search(name, limit: 30, market: 'US')
     # Returns an array of tracks
   end
 
@@ -27,7 +27,7 @@ class Spotify
   end
 
   def self.find_artist(name)
-    RSpotify::Artist.search(name, limit: 8, market: 'US')
+    RSpotify::Artist.search(name, limit: 30, market: 'US')
     # Returns nil or single instance of artist
   end
 
