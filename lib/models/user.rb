@@ -24,6 +24,14 @@ class User < ActiveRecord::Base
       end
     end
 
+    def prompt_select_multi(title, choices)
+      PROMPT.multi_select("Console: #{title}") do |menu|
+        menu.choices choices
+        menu.choice "Back", -> {throw :menu}
+        menu.per_page 10
+      end
+    end
+
     def show_playlists
       choices = {}
       self.playlists.each_with_index do |playlist, index|
@@ -76,31 +84,28 @@ class User < ActiveRecord::Base
     end
 
     def add_song
-      choice = prompt_select("Select a song from your playlists or Spotify", ["1) Playlists", "2) Spotify"])
-      if choice == "2) Spotify"
-        song = load_song_from_api
-      else
-        song = load_song_from_playlists
-      end
-
-      # Ask the user to select a playlist
+      # If the user has no playlist, ask to make one.
       if self.playlists.size == 0
-        PROMPT.warn("Console: No playlists, please create one.")
+        PROMPT.warn("Console: No playlist found, please create one.")
         create_playlist
         self.reload
       end
-
+      # Ask the user to select the playlist where the song will go
       choices = {}
       self.playlists.each_with_index do |playlist, index|
         choices["#{index + 1}) #{playlist.name}"] = playlist
       end
-      playlist = prompt_select("Select the playlist.", choices)
+      playlist = prompt_select("Select the playlist to populate.", choices)
+      choice = prompt_select("Select a song from your playlists or Spotify", ["1) Playlists", "2) Spotify"])
 
-      # Create record joiner table
-      Record.find_or_create_by({:song_id => song.id, :playlist_id => playlist.id})
+      if choice == "2) Spotify"
+        load_song_from_api(playlist)
+      else
+        load_song_from_playlists(playlist)
+      end
     end
 
-    def load_song_from_api
+    def load_song_from_api(playlist)
       song_name = PROMPT.ask("What is the song name or artist name?")
       songs = Spotify.find_track_by_name(song_name) # Call Spotify static class handles API calls
 
@@ -108,21 +113,23 @@ class User < ActiveRecord::Base
       songs.map.with_index(1) do |song, index|
         choices["#{index}) #{song.name} - #{song.artists.first.name}"] = song
       end
-      # Ask the user to select from the list of songs
-      song = prompt_select("Select the song.", choices)
-
-      # Return a new song instance
-      Song.find_or_create_by({:name => song.name, :artist_name => song.artists.first.name, :external_url => song.external_urls['spotify']})
+      # Ask the user to select from the list of songs and return an array of selections
+      PROMPT.warn("Console: Use space to select multiple songs then Enter. (Include Back to Cancel All)")
+      prompt_select_multi("Select the song.", choices).map do |song|
+        db_song = Song.find_or_create_by({:name => song.name, :artist_name => song.artists.first.name, :external_url => song.external_urls['spotify']})
+        Record.find_or_create_by({:song_id => db_song.id, :playlist_id => playlist.id}) # Joiner table
+      end
     end
 
 
-    def load_song_from_playlists
+    def load_song_from_playlists(playlist)
       choices = {}
       self.songs.uniq.map.with_index(1) do |song, index|
         choices["#{index}) #{song.name} - #{song.artist_name}"] = song
       end
       # Return the selected song
-      prompt_select("Select the song.", choices)
+      song = prompt_select("Select the song.", choices)
+      Record.find_or_create_by({:song_id => song.id, :playlist_id => playlist.id}) # Joiner table
     end
 
 
